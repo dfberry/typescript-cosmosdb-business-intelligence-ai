@@ -1,0 +1,1 @@
+# typescript-cosmosdb-business-intelligence-ai
