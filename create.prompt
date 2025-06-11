@@ -111,10 +111,288 @@ You are an expert TypeScript developer and Azure Cosmos DB architect. Your task 
 7. **Regional Availability**: ⚠️ *Model availability varies by region and changes over time*
 
 **Testing & Validation:**
-- Include scripts to test Cosmos DB connectivity
-- Validate OpenAI API access
-- Test vector search functionality
-- Verify end-to-end conversation flow
+📅 *Testing requirements as of June 2025*
+
+- **Testing Framework**: Use Vitest for unit and integration testing ⚠️ *Verify latest Vitest version*
+- **Coverage Requirements**: Minimum 80% code coverage across all modules
+- **Test Categories**:
+  1. **Unit Tests**: Individual functions and classes
+  2. **Integration Tests**: Azure service connectivity and data flow
+  3. **E2E Tests**: Complete conversation workflow
+- **Test Modules Required**:
+  - Configuration validation (config.ts)
+  - Type definitions and interfaces (types.ts)
+  - Cosmos DB operations (search, query, data loading)
+  - OpenAI integration (embeddings, chat completions)
+  - Vector search functionality with fallbacks
+  - CLI conversation loop
+- **Mock Strategy**: Mock Azure services for unit tests, use test data for integration
+- **Coverage Reports**: Generate HTML and terminal coverage reports
+- **Performance Testing**: Validate response times for vector search and AI responses
+- **Error Handling Tests**: Test fallback mechanisms and error scenarios
+- **Scripts**: Include npm scripts for running tests, coverage, and CI/CD integration ⚠️ *Update package.json test scripts*
+
+**Detailed Testing Stack & Implementation:**
+📅 *Comprehensive testing implementation guide as of June 2025*
+
+**Core Testing Dependencies**:
+```json
+{
+  "devDependencies": {
+    "vitest": "^3.2.3",
+    "@vitest/coverage-v8": "^3.2.3",
+    "@vitest/ui": "^3.2.3"
+  }
+}
+```
+
+**Test Configuration Requirements**:
+- **Vitest Config**: Configure with ESM support, coverage thresholds, and test patterns
+- **Coverage Thresholds**: 
+  - Statements: 80%
+  - Branches: 80%
+  - Functions: 80%
+  - Lines: 80%
+- **Test Environment**: Node.js with proper ESM module resolution
+- **Mock Infrastructure**: Comprehensive Azure SDK and OpenAI mocking
+
+**Test Structure Requirements**:
+```
+tests/
+├── unit/                    # Unit tests for individual modules
+│   ├── config.test.ts      # Environment and configuration testing
+│   ├── types.test.ts       # TypeScript interface validation
+│   └── movie-ai.test.ts    # Core MovieAI class functionality
+├── integration/             # Azure service integration tests
+│   └── azure-services.test.ts
+├── e2e/                     # End-to-end workflow tests
+│   └── application.test.ts
+├── __mocks__/              # Mock implementations
+│   └── azure-services.ts   # Azure & OpenAI service mocks
+└── test-utils.ts           # Test helper utilities
+```
+
+**Required Test Scripts**:
+```json
+{
+  "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit/",
+    "test:integration": "vitest run tests/integration/",
+    "test:e2e": "vitest run tests/e2e/",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
+  }
+}
+```
+
+**Unit Testing Specifications**:
+1. **Configuration Tests**:
+   - Environment variable loading and validation
+   - Default value handling
+   - Error cases for missing required variables
+   - Type safety validation
+
+2. **Type Interface Tests**:
+   - Movie interface validation
+   - Review interface validation
+   - Embedding structure validation
+   - Data transformation accuracy
+
+3. **MovieAI Class Tests**:
+   - Constructor initialization
+   - Vector search functionality with realistic embeddings
+   - Keyword search fallback mechanisms
+   - Cosine similarity calculations (including edge cases)
+   - Question answering with GPT integration
+   - Error handling for network failures
+   - API response validation
+   - Performance benchmarks
+
+**Integration Testing Specifications**:
+1. **Azure Cosmos DB Integration**:
+   - Connection establishment
+   - Query execution with vector search
+   - Data retrieval and validation
+   - Error handling for service unavailability
+
+2. **Azure OpenAI Integration**:
+   - Embedding generation
+   - Chat completion requests
+   - Rate limiting handling
+   - API error scenarios
+
+3. **End-to-End Data Flow**:
+   - Complete search → embedding → query → response workflow
+   - Performance validation (response times < 5 seconds)
+   - Data consistency verification
+
+**E2E Testing Specifications**:
+1. **Application Startup**:
+   - CLI initialization without errors
+   - Configuration loading validation
+   - Service connectivity verification
+
+2. **Conversation Loop**:
+   - Natural language question processing
+   - Vector search execution
+   - GPT response generation
+   - Error graceful handling
+
+3. **Utility Scripts**:
+   - Configuration test script execution
+   - Integration test validation
+   - Performance benchmarking
+
+**Mock Implementation Requirements**:
+1. **Azure Cosmos DB Mocks**:
+   - Realistic container and query mocking
+   - Proper response structure simulation
+   - Error scenario simulation
+   - Vector search result mocking
+
+2. **OpenAI Service Mocks**:
+   - Embedding API response simulation
+   - Chat completion response mocking
+   - Rate limiting simulation
+   - Error response handling
+
+3. **Test Data Management**:
+   - Representative movie data with embeddings
+   - Configurable mock scenarios
+   - Consistent test data generation
+   - Reset capabilities for test isolation
+
+**Performance & Error Testing**:
+1. **Performance Benchmarks**:
+   - Vector search response time < 2 seconds
+   - Embedding generation < 3 seconds
+   - Chat completion < 5 seconds
+   - Memory usage monitoring
+
+2. **Error Scenario Testing**:
+   - Network connectivity failures
+   - API rate limiting
+   - Invalid API responses
+   - Malformed data handling
+   - Service unavailability
+
+**Coverage Requirements & Validation**:
+- **Core Application Logic**: Minimum 80% coverage
+- **Configuration Module**: 100% coverage recommended
+- **Error Handling Paths**: Comprehensive coverage
+- **Mock Implementation**: Adequate coverage for reliability
+- **Coverage Reports**: HTML and LCOV formats for CI/CD integration
+
+**CI/CD Integration Specifications**:
+- **Test Execution**: All tests must pass before deployment
+- **Coverage Validation**: Enforce 80% threshold in pipeline
+- **Performance Gates**: Response time validation
+- **Security Scanning**: Dependency vulnerability checks
+- **Documentation**: Automated test result reporting
+
+**Testing Implementation Process:**
+📅 *Step-by-step testing implementation workflow as of June 2025*
+
+**Phase 1: Test Infrastructure Setup**
+1. **Install Testing Dependencies**:
+   ```bash
+   npm install --save-dev vitest @vitest/coverage-v8 @vitest/ui
+   ```
+2. **Configure Vitest**:
+   - Create `vitest.config.ts` with ESM support
+   - Set coverage thresholds and providers
+   - Configure test patterns and exclusions
+3. **Setup Test Directory Structure**:
+   - Create `tests/` directory with proper subdirectories
+   - Implement base mock infrastructure
+   - Create test utility functions
+
+**Phase 2: Unit Test Implementation**
+1. **Configuration Module Tests** (`tests/unit/config.test.ts`):
+   - Test environment variable loading
+   - Validate configuration object structure
+   - Test error handling for missing variables
+   - Verify type safety and defaults
+
+2. **Type Definition Tests** (`tests/unit/types.test.ts`):
+   - Validate Movie interface compliance
+   - Test Review interface structure
+   - Verify embedding type definitions
+   - Test data transformation functions
+
+3. **Core Functionality Tests** (`tests/unit/movie-ai.test.ts`):
+   - Test MovieAI class initialization
+   - Mock Azure SDK dependencies properly
+   - Test vector search with realistic data
+   - Validate cosine similarity calculations
+   - Test fallback mechanisms
+   - Verify error handling scenarios
+
+**Phase 3: Integration Test Development**
+1. **Azure Services Integration** (`tests/integration/azure-services.test.ts`):
+   - Test actual Azure Cosmos DB connectivity
+   - Validate OpenAI API integration
+   - Test end-to-end data flow
+   - Performance validation with realistic datasets
+   - Rate limiting and error handling
+
+**Phase 4: End-to-End Test Creation**
+1. **Application Workflow Tests** (`tests/e2e/application.test.ts`):
+   - Test complete CLI application startup
+   - Validate conversation loop functionality
+   - Test natural language question processing
+   - Verify response generation and formatting
+   - Test graceful error handling
+
+**Phase 5: Mock Infrastructure**
+1. **Azure Service Mocks** (`tests/__mocks__/azure-services.ts`):
+   - Create comprehensive Cosmos DB container mocks
+   - Implement OpenAI API response mocking
+   - Setup configurable test scenarios
+   - Implement proper mock reset functionality
+
+2. **Test Utilities** (`tests/test-utils.ts`):
+   - Create test data generation functions
+   - Implement validation helpers
+   - Setup performance testing utilities
+   - Create environment validation helpers
+
+**Phase 6: Coverage & Performance Validation**
+1. **Coverage Analysis**:
+   - Run coverage reports and validate 80%+ threshold
+   - Identify uncovered code paths
+   - Implement additional tests for edge cases
+   - Generate HTML coverage reports
+
+2. **Performance Benchmarking**:
+   - Validate response time requirements
+   - Test memory usage patterns
+   - Verify concurrency handling
+   - Test with realistic data volumes
+
+**Phase 7: CI/CD Integration**
+1. **Test Script Configuration**:
+   - Setup npm scripts for different test categories
+   - Configure watch mode for development
+   - Setup coverage reporting for CI/CD
+   - Implement test result formatting
+
+2. **Pipeline Integration**:
+   - Configure test execution in deployment pipeline
+   - Setup coverage threshold enforcement
+   - Implement performance gate validation
+   - Configure automated test reporting
+
+**Testing Best Practices & Guidelines**:
+- **Test Isolation**: Each test should be independent and repeatable
+- **Mock Strategy**: Mock external dependencies, test internal logic
+- **Data Management**: Use consistent test data across test suites
+- **Error Testing**: Test both success and failure scenarios
+- **Performance**: Include realistic performance benchmarks
+- **Documentation**: Document test purpose and expected outcomes
+- **Maintenance**: Regularly update tests with code changes
 
 ---
 
@@ -130,6 +408,7 @@ You are an expert TypeScript developer and Azure Cosmos DB architect. Your task 
 - Explain and script the batch vectorization process using Azure OpenAI, including how to update Cosmos DB documents with vector embeddings.
 - Scaffold the minimal TypeScript ESM CLI application, including Cosmos DB and Azure OpenAI integration.
 - Implement a simple conversation loop that accepts NLP questions and returns plain text answers using semantic search and GPT with fallback strategies.
+- **Testing Implementation**: Create comprehensive test suite using Vitest with 80%+ coverage, including unit, integration, and E2E tests.
 - Include utility scripts for testing and validation.
 - **Dependency Management**: Always check for the latest package versions and security updates.
 - Ask clarifying questions if any requirements are unclear or if additional information is needed.

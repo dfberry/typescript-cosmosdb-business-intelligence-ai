@@ -133,6 +133,9 @@ class MovieAI {
       norm2 += vec2[i] * vec2[i];
     }
     
+    // Handle edge cases where vectors are zero
+    if (norm1 === 0 || norm2 === 0) return 0;
+    
     return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
   }
 
@@ -202,6 +205,9 @@ ${context}`
     askQuestion();
   }
 }
+
+// Export the class for testing
+export { MovieAI };
 
 // Start the application
 async function main() {
