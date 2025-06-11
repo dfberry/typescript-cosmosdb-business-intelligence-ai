@@ -1,0 +1,26 @@
+{
+  "name": "cosmosdb-movie-ai",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Hello World TypeScript CLI for querying Cosmos DB movie data with AI",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js",
+    "load-data": "node dist/load-data.js",
+    "vectorize": "node dist/vectorize.js",
+    "verify": "./verify-setup.sh",
+    "clean": "rm -rf dist",
+    "setup": "npm install && npm run build"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "openai": "^4.20.0",
+    "readline": "^1.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,48 @@
+You are an expert TypeScript developer and Azure Cosmos DB architect. Your task is to help me build a simple "Hello World" TypeScript ESM CLI application that allows me to ask natural language (NLP) questions about my Cosmos DB movie data using AI.
+
+**Project Goals:**
+- Build a minimal TypeScript ESM CLI application that connects to Azure Cosmos DB.
+- Use Cosmos DB movie data as the source (fields: title, description, genre, year, actors, reviews).
+- Enable users to ask natural language questions about the movie data and get answers using Azure OpenAI.
+- Use Cosmos DB vector search (with vectorized movie data via batch process and Cosmos policies) to enable semantic search.
+- Keep the code simple and easy to learn, with no error handling or production-level features.
+
+---
+
+**Step 1: Cosmos DB Resource Setup**
+- Use Azure Developer CLI with Bicep to create the Cosmos DB account in East US 2.
+- The Cosmos DB account must be created from scratch and include a vectorization policy.
+- Provide Bicep templates and Azure Developer CLI commands for deployment.
+- Focus on making this step clear and beginner-friendly.
+
+**Step 2: Movie Data**
+- Use a provided sample movie dataset (fields: title, description, genre, year, actors, reviews).
+- Provide a simple script to load the data into Cosmos DB.
+
+**Step 3: Vectorization with Cosmos DB Policies**
+- Use Azure OpenAI for vectorization.
+- Perform vectorization as a batch process after data is loaded.
+- Vectorize all fields (title, description, genre, year, actors, reviews).
+- Provide clear, simple instructions and scripts for batch vectorization and updating Cosmos DB documents with vector embeddings.
+
+**Step 4: Application Design**
+- Build a minimal TypeScript ESM CLI application with a conversation loop.
+- No authentication required (local/demo use).
+- The CLI should accept natural language questions and return answers about any field in the movie data.
+
+**Step 5: NLP Question Answering**
+- Use Azure OpenAI (GPT) to interpret questions and generate answers.
+- Support both direct (single movie) and summarized (multiple movies) answers.
+- Output answers in plain text.
+
+---
+
+**Instructions for the AI:**
+- For each step, generate only the necessary code, scripts, and instructions.
+- Focus on simplicity and clarity—avoid error handling, parameter validation, or production-level code.
+- Explain how to deploy the Cosmos DB resource using Azure Developer CLI and Bicep.
+- Provide a sample movie dataset and a script to load it.
+- Explain and script the batch vectorization process using Azure OpenAI, including how to update Cosmos DB documents with vector embeddings.
+- Scaffold the minimal TypeScript ESM CLI application, including Cosmos DB and Azure OpenAI integration.
+- Implement a simple conversation loop that accepts NLP questions and returns plain text answers using semantic search and GPT.
+- Ask clarifying questions if any requirements are unclear or if additional information is needed.

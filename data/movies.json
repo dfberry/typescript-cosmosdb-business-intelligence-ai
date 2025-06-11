@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "title": "The Shawshank Redemption",
+    "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+    "genre": "Drama",
+    "year": 1994,
+    "actors": ["Tim Robbins", "Morgan Freeman", "Bob Gunton"],
+    "reviews": "Excellent storytelling and powerful performances. A masterpiece of cinema that explores hope and friendship."
+  },
+  {
+    "id": "2",
+    "title": "The Godfather",
+    "description": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
+    "genre": "Crime",
+    "year": 1972,
+    "actors": ["Marlon Brando", "Al Pacino", "James Caan"],
+    "reviews": "Iconic film with outstanding acting. A complex story of family, power, and loyalty in the world of organized crime."
+  },
+  {
+    "id": "3",
+    "title": "The Dark Knight",
+    "description": "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests.",
+    "genre": "Action",
+    "year": 2008,
+    "actors": ["Christian Bale", "Heath Ledger", "Aaron Eckhart"],
+    "reviews": "Heath Ledger's performance as the Joker is legendary. Dark, intense, and brilliantly crafted superhero film."
+  },
+  {
+    "id": "4",
+    "title": "Pulp Fiction",
+    "description": "The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.",
+    "genre": "Crime",
+    "year": 1994,
+    "actors": ["John Travolta", "Uma Thurman", "Samuel L. Jackson"],
+    "reviews": "Tarantino's masterpiece with non-linear storytelling. Witty dialogue and memorable characters throughout."
+  },
+  {
+    "id": "5",
+    "title": "Forrest Gump",
+    "description": "The presidencies of Kennedy and Johnson, Vietnam, Watergate, and other history unfold through the perspective of an Alabama man.",
+    "genre": "Drama",
+    "year": 1994,
+    "actors": ["Tom Hanks", "Robin Wright", "Gary Sinise"],
+    "reviews": "Tom Hanks delivers an incredible performance. A heartwarming journey through American history with humor and emotion."
+  },
+  {
+    "id": "6",
+    "title": "Inception",
+    "description": "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into a CEO's mind.",
+    "genre": "Sci-Fi",
+    "year": 2010,
+    "actors": ["Leonardo DiCaprio", "Marion Cotillard", "Tom Hardy"],
+    "reviews": "Mind-bending plot with stunning visuals. Nolan creates a complex and engaging exploration of dreams and reality."
+  },
+  {
+    "id": "7",
+    "title": "The Matrix",
+    "description": "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
+    "genre": "Sci-Fi",
+    "year": 1999,
+    "actors": ["Keanu Reeves", "Laurence Fishburne", "Carrie-Anne Moss"],
+    "reviews": "Revolutionary special effects and philosophical themes. A groundbreaking film that redefined action and sci-fi genres."
+  },
+  {
+    "id": "8",
+    "title": "Goodfellas",
+    "description": "The story of Henry Hill and his life in the mob, covering his relationship with his wife Karen Hill and his mob partners.",
+    "genre": "Crime",
+    "year": 1990,
+    "actors": ["Robert De Niro", "Ray Liotta", "Joe Pesci"],
+    "reviews": "Scorsese's brilliant direction and outstanding performances. A gritty and realistic portrayal of mob life."
+  },
+  {
+    "id": "9",
+    "title": "Star Wars: Episode IV",
+    "description": "Luke Skywalker joins forces with a Jedi Knight, a cocky pilot, a Wookiee and two droids to save the galaxy.",
+    "genre": "Sci-Fi",
+    "year": 1977,
+    "actors": ["Mark Hamill", "Harrison Ford", "Carrie Fisher"],
+    "reviews": "A space opera that changed cinema forever. Epic storytelling with memorable characters and groundbreaking effects."
+  },
+  {
+    "id": "10",
+    "title": "Casablanca",
+    "description": "A cynical American expatriate struggles to decide whether or not he should help his former lover and her fugitive husband escape French Morocco.",
+    "genre": "Romance",
+    "year": 1942,
+    "actors": ["Humphrey Bogart", "Ingrid Bergman", "Paul Henreid"],
+    "reviews": "Classic Hollywood romance with timeless dialogue. Bogart and Bergman have incredible chemistry in this wartime drama."
+  }
+]
