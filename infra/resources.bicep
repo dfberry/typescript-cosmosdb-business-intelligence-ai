@@ -8,7 +8,7 @@ var cosmosAccountName = 'cosmos-${environmentName}'
 var openaiAccountName = 'openai-${environmentName}'
 
 // Cosmos DB Account with vectorization capabilities
-resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-09-15' = {
+resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-11-15' = {
   name: cosmosAccountName
   location: location
   kind: 'GlobalDocumentDB'
@@ -33,7 +33,7 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-09-15' = {
 }
 
 // Cosmos DB Database
-resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-09-15' = {
+resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-11-15' = {
   parent: cosmosAccount
   name: 'MovieDB'
   properties: {
@@ -43,8 +43,8 @@ resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023
   }
 }
 
-// Cosmos DB Container with vector indexing
-resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-09-15' = {
+// Cosmos DB Container with vector indexing for semantic search
+resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-11-15' = {
   parent: cosmosDatabase
   name: 'Movies'
   properties: {
@@ -62,26 +62,25 @@ resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/con
             path: '/*'
           }
         ]
+        excludedPaths: [
+          {
+            path: '/embedding/*'
+          }
+        ]
         vectorIndexes: [
           {
-            path: '/titleVector'
-            type: 'flat'
+            path: '/embedding'
+            type: 'quantizedFlat'
           }
+        ]
+      }
+      vectorEmbeddingPolicy: {
+        vectorEmbeddings: [
           {
-            path: '/descriptionVector'
-            type: 'flat'
-          }
-          {
-            path: '/genreVector'
-            type: 'flat'
-          }
-          {
-            path: '/actorsVector'
-            type: 'flat'
-          }
-          {
-            path: '/reviewsVector'
-            type: 'flat'
+            path: '/embedding'
+            dataType: 'float32'
+            distanceFunction: 'cosine'
+            dimensions: 1536
           }
         ]
       }
@@ -102,19 +101,20 @@ resource openaiAccount 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   }
 }
 
-// GPT-4 Deployment
+// GPT-4o Deployment
 resource gptDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
   parent: openaiAccount
-  name: 'gpt-4'
+  name: 'gpt-4o'
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4'
-      version: '1106-Preview'
+      name: 'gpt-4o'
+      version: '2024-08-06'
     }
-    scaleSettings: {
-      scaleType: 'Standard'
-    }
+  }
+  sku: {
+    name: 'Standard'
+    capacity: 10
   }
 }
 
@@ -128,13 +128,14 @@ resource embeddingDeployment 'Microsoft.CognitiveServices/accounts/deployments@2
       name: 'text-embedding-ada-002'
       version: '2'
     }
-    scaleSettings: {
-      scaleType: 'Standard'
-    }
+  }
+  sku: {
+    name: 'Standard'
+    capacity: 10
   }
 }
 
 output COSMOS_DB_ENDPOINT string = cosmosAccount.properties.documentEndpoint
-output COSMOS_DB_KEY string = cosmosAccount.listKeys().primaryMasterKey
+output COSMOS_DB_ACCOUNT_NAME string = cosmosAccount.name
 output OPENAI_ENDPOINT string = openaiAccount.properties.endpoint
-output OPENAI_KEY string = openaiAccount.listKeys().key1
+output OPENAI_ACCOUNT_NAME string = openaiAccount.name

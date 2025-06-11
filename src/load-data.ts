@@ -18,8 +18,8 @@ async function loadMovieData() {
   console.log(`Loading ${movieData.length} movies into Cosmos DB...`);
 
   for (const movie of movieData) {
-    await container.items.create(movie);
-    console.log(`Loaded: ${movie.title}`);
+    await container.items.upsert(movie);
+    console.log(`✓ Loaded/Updated: ${movie.title}`);
   }
 
   console.log('Movie data loading complete!');

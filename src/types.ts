@@ -1,3 +1,9 @@
+export interface Review {
+  reviewer: string;
+  rating: number;
+  review: string;
+}
+
 export interface Movie {
   id: string;
   title: string;
@@ -5,7 +11,8 @@ export interface Movie {
   genre: string;
   year: number;
   actors: string[];
-  reviews: string;
+  reviews: Review[];
+  embedding?: number[];
   titleVector?: number[];
   descriptionVector?: number[];
   genreVector?: number[];
