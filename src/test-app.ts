@@ -1,9 +1,22 @@
 // Simple test script to validate the Movie AI functionality
 import { CosmosClient } from '@azure/cosmos';
 import { OpenAI } from 'openai';
-import { config } from './dist/config.js';
+import { config } from './config.js';
+import { Movie } from './types.js';
 
-async function testMovieAI() {
+interface TestMovie {
+  id: string;
+  title: string;
+  hasEmbedding?: boolean;
+}
+
+interface MovieWithSimilarity {
+  title: string;
+  genre: string;
+  similarity: number;
+}
+
+async function testMovieAI(): Promise<void> {
   console.log('🧪 Testing Movie AI functionality...\n');
   
   try {
@@ -18,7 +31,7 @@ async function testMovieAI() {
     const container = database.container(config.cosmosDb.containerId);
     
     // Check if movies exist
-    const { resources: movies } = await container.items.query('SELECT TOP 3 c.id, c.title FROM c').fetchAll();
+    const { resources: movies } = await container.items.query<TestMovie>('SELECT TOP 3 c.id, c.title FROM c').fetchAll();
     console.log(`✅ Found ${movies.length} movies in database`);
     console.log(`   Sample movies: ${movies.map(m => m.title).join(', ')}\n`);
     
@@ -41,7 +54,7 @@ async function testMovieAI() {
     
     // Test embeddings in database
     console.log('3. Testing movie embeddings...');
-    const { resources: moviesWithEmbeddings } = await container.items.query('SELECT c.id, c.title, IS_DEFINED(c.embedding) as hasEmbedding FROM c').fetchAll();
+    const { resources: moviesWithEmbeddings } = await container.items.query<TestMovie>('SELECT c.id, c.title, IS_DEFINED(c.embedding) as hasEmbedding FROM c').fetchAll();
     const embeddedCount = moviesWithEmbeddings.filter(m => m.hasEmbedding).length;
     console.log(`✅ ${embeddedCount}/${moviesWithEmbeddings.length} movies have embeddings\n`);
     
@@ -54,11 +67,11 @@ async function testMovieAI() {
     });
     
     // Try application-level similarity search
-    const { resources: allMovies } = await container.items.query('SELECT * FROM c WHERE IS_DEFINED(c.embedding)').fetchAll();
+    const { resources: allMovies } = await container.items.query<Movie>('SELECT * FROM c WHERE IS_DEFINED(c.embedding)').fetchAll();
     
     if (allMovies.length > 0) {
-      const moviesWithSimilarity = allMovies.map(movie => {
-        const similarity = cosineSimilarity(questionEmbedding.data[0].embedding, movie.embedding);
+      const moviesWithSimilarity: MovieWithSimilarity[] = allMovies.map(movie => {
+        const similarity = cosineSimilarity(questionEmbedding.data[0].embedding, movie.embedding!);
         return { title: movie.title, genre: movie.genre, similarity };
       });
       
@@ -75,12 +88,12 @@ async function testMovieAI() {
     console.log('\n🎉 All tests passed! Movie AI is working correctly.');
     
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    console.error('❌ Test failed:', error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
 // Helper function for cosine similarity
-function cosineSimilarity(vec1, vec2) {
+function cosineSimilarity(vec1: number[], vec2: number[]): number {
   if (vec1.length !== vec2.length) return 0;
   
   let dotProduct = 0;
@@ -96,4 +109,9 @@ function cosineSimilarity(vec1, vec2) {
   return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
 }
 
-testMovieAI().catch(console.error);
+// Run the test if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  testMovieAI().catch(console.error);
+}
+
+export { testMovieAI };

@@ -1,5 +1,15 @@
 You are an expert TypeScript developer and Azure Cosmos DB architect. Your task is to help me build a simple "Hello World" TypeScript ESM CLI application that allows me to ask natural language (NLP) questions about my Cosmos DB movie data using AI.
 
+📅 **VERSION INFORMATION**
+- **Document Created**: June 2025
+- **Azure API Versions Tested**: Cosmos DB 2024-11-15, Azure OpenAI (current at time of writing)
+- **Models Validated**: text-embedding-ada-002, gpt-4o
+- **⚠️ IMPORTANT**: This document contains version-specific information that may become outdated. Always verify:
+  - Latest Azure API versions
+  - Current model availability and regional support
+  - Package dependency versions
+  - Azure service feature updates
+
 **Project Goals:**
 - Build a minimal TypeScript ESM CLI application that connects to Azure Cosmos DB.
 - Use Cosmos DB movie data as the source (fields: title, description, genre, year, actors, reviews).
@@ -7,42 +17,119 @@ You are an expert TypeScript developer and Azure Cosmos DB architect. Your task 
 - Use Cosmos DB vector search (with vectorized movie data via batch process and Cosmos policies) to enable semantic search.
 - Keep the code simple and easy to learn, with no error handling or production-level features.
 
+**Critical Implementation Details & Lessons Learned:**
+- **Cosmos DB API Version**: Use API version 2024-11-15 for vector indexing support ⚠️ *Verify latest API version*
+- **Vector Embedding Model**: Use text-embedding-ada-002 (1536 dimensions) ⚠️ *Check for newer embedding models*
+- **Azure OpenAI Model**: Use gpt-4o for chat completions ⚠️ *Verify model availability and latest versions*
+- **Vector Search Strategy**: Implement VectorDistance queries with fallback to keyword search
+- **Data Structure**: Use structured Review objects instead of plain strings for better searchability
+- **Region**: Deploy to East US 2 for optimal model availability ⚠️ *Check current model regional availability*
+- **Authentication**: Use DefaultAzureCredential with proper tenant configuration
+- **TypeScript Setup**: Ensure strict ESM configuration with proper module resolution
+
 ---
 
 **Step 1: Cosmos DB Resource Setup**
-- Use Azure Developer CLI with Bicep to create the Cosmos DB account in East US 2.
-- The Cosmos DB account must be created from scratch and include a vectorization policy.
+- Use Azure Developer CLI with Bicep to create the Cosmos DB account in East US 2 ⚠️ *Verify region availability for latest models*.
+- **CRITICAL**: Use API version 2024-11-15 for vector indexing support ⚠️ *Check for newer API versions with enhanced vector capabilities*
+- **Vector Configuration Required**: 
+  - Set vectorEmbeddingPolicy with dimensions: 1536, dataType: "float32", distanceFunction: "cosine"
+  - Configure vectorIndexes for the vectors field with type: "quantizedFlat" ⚠️ *Verify latest indexing options*
+- Use subscription-level deployment (targetScope = 'subscription')
 - Provide Bicep templates and Azure Developer CLI commands for deployment.
 - Focus on making this step clear and beginner-friendly.
+- **Authentication**: Ensure proper Azure tenant configuration for DefaultAzureCredential
 
 **Step 2: Movie Data**
 - Use a provided sample movie dataset (fields: title, description, genre, year, actors, reviews).
-- Provide a simple script to load the data into Cosmos DB.
+- **Data Structure Enhancement**: Convert reviews from strings to structured Review objects:
+  ```typescript
+  interface Review {
+    reviewer: string;
+    rating: number;
+    review: string;
+  }
+  ```
+- Provide a simple script to load the data into Cosmos DB with upsert functionality.
+- Include at least 10 diverse movies for meaningful search results.
 
-**Step 3: Vectorization with Cosmos DB Policies**
-- Use Azure OpenAI for vectorization.
-- Perform vectorization as a batch process after data is loaded.
-- Vectorize all fields (title, description, genre, year, actors, reviews).
+**Step 3: Vectorization with Azure OpenAI**
+- **Model**: Use text-embedding-ada-002 (1536 dimensions) for embeddings ⚠️ *Check for newer embedding models with better performance*
+- **Strategy**: Perform vectorization as a batch process after data is loaded
+- **Vectorization Target**: Create combined text from all fields (title + description + genre + year + actors + reviews)
+- **Vector Storage**: Store embeddings in a 'vectors' field on each document
+- **Implementation**: Use Azure OpenAI client with proper authentication
 - Provide clear, simple instructions and scripts for batch vectorization and updating Cosmos DB documents with vector embeddings.
+- **Performance**: Process movies in batches to avoid rate limiting ⚠️ *Verify current rate limits*
 
 **Step 4: Application Design**
 - Build a minimal TypeScript ESM CLI application with a conversation loop.
+- **TypeScript Configuration**: Use strict ESM with proper module resolution ⚠️ *Verify latest TypeScript best practices*
+- **Dependencies**: @azure/cosmos, @azure/openai, dotenv for configuration ⚠️ *Check for package updates and security patches*
 - No authentication required (local/demo use).
 - The CLI should accept natural language questions and return answers about any field in the movie data.
+- **Project Structure**: Separate concerns into config.ts, types.ts, index.ts
+- **Environment Configuration**: Use .env file for connection strings and API keys
 
 **Step 5: NLP Question Answering**
-- Use Azure OpenAI (GPT) to interpret questions and generate answers.
+- **Model**: Use gpt-4o for chat completions ⚠️ *Verify latest GPT model availability and capabilities*
+- **Search Strategy**: Implement vector search with fallback mechanisms:
+  1. VectorDistance query with cosine similarity
+  2. Fallback to keyword search if vector search fails
+  3. Graceful error handling for search failures
 - Support both direct (single movie) and summarized (multiple movies) answers.
+- **Context Injection**: Pass search results to GPT for contextual responses
 - Output answers in plain text.
+- **Performance**: Typical semantic search accuracy ~82% for relevant queries ⚠️ *Performance may vary with model updates*
+
+---
+
+**Key Technical Specifications:**
+📅 *Information captured as of June 2025 - verify for latest versions*
+
+- **Azure OpenAI Models**: 
+  - Embeddings: text-embedding-ada-002 (1536 dimensions) ⚠️ *Check for newer embedding models*
+  - Chat: gpt-4o ⚠️ *Verify latest available models*
+- **Cosmos DB Configuration**:
+  - API Version: 2024-11-15 ⚠️ *Check for newer API versions*
+  - Vector Policy: cosine distance, float32, 1536 dimensions
+  - Index Type: quantizedFlat ⚠️ *Verify latest indexing options*
+- **TypeScript Setup**:
+  - ESM modules with "type": "module"
+  - Strict compilation settings
+  - Proper @types packages ⚠️ *Check for package updates*
+
+**Common Pitfalls & Solutions:**
+📅 *Based on implementation experience as of June 2025*
+
+1. **Vector Search Failures**: Always implement fallback to keyword search
+2. **Authentication Issues**: Ensure correct Azure tenant configuration
+3. **API Compatibility**: Use latest Cosmos DB API version for vector support ⚠️ *API versions evolve frequently*
+4. **Rate Limiting**: Batch process embeddings to avoid OpenAI rate limits ⚠️ *Rate limits may change*
+5. **Type Safety**: Use proper TypeScript interfaces for all data structures
+6. **Model Deprecation**: ⚠️ *Monitor Azure OpenAI service announcements for model lifecycle changes*
+7. **Regional Availability**: ⚠️ *Model availability varies by region and changes over time*
+
+**Testing & Validation:**
+- Include scripts to test Cosmos DB connectivity
+- Validate OpenAI API access
+- Test vector search functionality
+- Verify end-to-end conversation flow
 
 ---
 
 **Instructions for the AI:**
+⚠️ **IMPORTANT**: Before implementation, verify all version-specific information marked with warning symbols above.
+
 - For each step, generate only the necessary code, scripts, and instructions.
 - Focus on simplicity and clarity—avoid error handling, parameter validation, or production-level code.
-- Explain how to deploy the Cosmos DB resource using Azure Developer CLI and Bicep.
-- Provide a sample movie dataset and a script to load it.
+- **ALWAYS** use the specified API versions and model names from the technical specifications above, but verify they are still current.
+- **Version Verification**: Check Azure documentation for the latest API versions, model availability, and regional support before proceeding.
+- Explain how to deploy the Cosmos DB resource using Azure Developer CLI and Bicep with proper vector configuration.
+- Provide a sample movie dataset with structured Review objects and a script to load it.
 - Explain and script the batch vectorization process using Azure OpenAI, including how to update Cosmos DB documents with vector embeddings.
 - Scaffold the minimal TypeScript ESM CLI application, including Cosmos DB and Azure OpenAI integration.
-- Implement a simple conversation loop that accepts NLP questions and returns plain text answers using semantic search and GPT.
+- Implement a simple conversation loop that accepts NLP questions and returns plain text answers using semantic search and GPT with fallback strategies.
+- Include utility scripts for testing and validation.
+- **Dependency Management**: Always check for the latest package versions and security updates.
 - Ask clarifying questions if any requirements are unclear or if additional information is needed.

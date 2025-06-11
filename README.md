@@ -1,154 +1,83 @@
-# Cosmos DB Movie AI - Hello World TypeScript CLI
+# Movie AI - Ask Questions About Movies with AI
 
-A simple TypeScript ESM CLI application that allows you to ask natural language questions about movie data stored in Azure Cosmos DB using AI.
-
-## Features
-
-- **Vector Search**: Uses Cosmos DB vector indexing for semantic search
-- **AI-Powered**: Leverages Azure OpenAI for embeddings and chat completions
-- **Simple CLI**: Interactive conversation loop for asking questions
-- **Movie Database**: Includes sample movie data with title, description, genre, year, actors, and reviews
-
-## Prerequisites
-
-- Azure subscription
-- Azure Developer CLI (`azd`) installed
-- Node.js 18+ with npm
-- TypeScript
+A TypeScript CLI that lets you ask natural language questions about movies using Azure Cosmos DB vector search and Azure OpenAI.
 
 ## Quick Start
 
-### 1. Deploy Azure Resources
+### 1. Deploy to Azure
 
 ```bash
-# Make deploy script executable and run it
-./deploy.sh
+azd up
 ```
 
-This will:
-- Create Azure Cosmos DB account with vector indexing capabilities
-- Create Azure OpenAI account with GPT-4 and text-embedding-ada-002 models
-- Generate environment variables in `.env` file
+This command will:
+- Create Azure Cosmos DB with vector search capabilities
+- Deploy Azure OpenAI with GPT-4o and embedding models
+- Load sample movie data and generate embeddings
+- Set up everything you need automatically
 
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Build the Application
-
-```bash
-npm run build
-```
-
-### 4. Load Movie Data
-
-```bash
-npm run load-data
-```
-
-### 5. Vectorize the Data
-
-```bash
-npm run vectorize
-```
-
-This step creates vector embeddings for all movie fields using Azure OpenAI and stores them in Cosmos DB.
-
-### 6. Start the Application
+### 2. Ask Questions About Movies
 
 ```bash
 npm start
 ```
 
-## Example Questions
-
-Try asking these natural language questions:
-
-- "What movies are about dreams?"
+Then try asking questions like:
+- "What are some good sci-fi movies with space adventures?"
 - "Show me action movies from the 1990s"
 - "Which movies have Morgan Freeman?"
 - "What are the best crime movies?"
-- "Tell me about movies directed by Christopher Nolan"
-- "What movies have good reviews?"
+- "Tell me about movies with great reviews"
 
-## Architecture
+## That's It! 🎬
 
-- **Azure Cosmos DB**: NoSQL database with vector indexing for semantic search
-- **Azure OpenAI**: 
-  - `text-embedding-ada-002` for creating vector embeddings
-  - `gpt-4` for generating natural language responses
-- **TypeScript ESM**: Modern TypeScript with ES modules
-- **Vector Search**: Semantic similarity search using cosine distance
+The application includes 10 classic movies and uses AI to understand your questions and provide intelligent recommendations based on semantic similarity.
 
-## Project Structure
+## Example Session
 
 ```
-├── src/
-│   ├── index.ts          # Main CLI application with conversation loop
-│   ├── config.ts         # Configuration settings
-│   ├── types.ts          # TypeScript interfaces
-│   ├── load-data.ts      # Script to load movie data into Cosmos DB
-│   └── vectorize.ts      # Script to create vector embeddings
-├── infra/
-│   ├── main.bicep        # Main Bicep template
-│   └── resources.bicep   # Azure resources definition
-├── data/
-│   └── movies.json       # Sample movie dataset
-└── deploy.sh             # Deployment automation script
+🎬 Welcome to Movie AI! Ask me anything about movies.
+Type "exit" to quit.
+
+Ask me about movies: What are some good space adventure movies?
+
+Thinking...
+
+🤖 Based on your interest in space adventures, here are some excellent options:
+
+1. **Star Wars: Episode IV** (1977) - The classic space opera that started it all. Luke Skywalker joins forces with a Jedi Knight, rebels, and droids to save the galaxy.
+
+2. **The Matrix** (1999) - While not traditional space travel, this sci-fi masterpiece explores reality and features incredible action sequences with philosophical depth.
+
+3. **Inception** (2010) - A mind-bending adventure through dream worlds with stunning visuals and complex storytelling.
+
+These films offer thrilling adventures with memorable characters and groundbreaking special effects!
 ```
 
-## How It Works
+## What's Under the Hood
 
-1. **Data Loading**: Movie data is loaded into Cosmos DB
-2. **Vectorization**: Each movie field is converted to vector embeddings using OpenAI
-3. **Query Processing**: User questions are converted to vector embeddings
-4. **Semantic Search**: Cosmos DB finds movies with similar vector embeddings
-5. **AI Response**: GPT-4 generates natural language answers based on search results
+- **Azure Cosmos DB**: Stores movie data with vector embeddings for semantic search
+- **Azure OpenAI**: Powers the AI responses and understands your questions
+- **Vector Search**: Finds movies similar to your question using AI embeddings
+- **TypeScript**: Modern, type-safe code you can explore and modify
 
-## Sample Movie Data
+## Next Steps
 
-The application includes 10 classic movies with the following fields:
-- Title
-- Description  
-- Genre
-- Year
-- Actors
-- Reviews
-
-## Environment Variables
-
-The application uses these environment variables (automatically configured by deployment):
-
-- `COSMOS_DB_ENDPOINT`: Cosmos DB account endpoint
-- `COSMOS_DB_KEY`: Cosmos DB access key
-- `OPENAI_ENDPOINT`: Azure OpenAI service endpoint
-- `OPENAI_KEY`: Azure OpenAI access key
-
-## Manual Setup (Alternative)
-
-If you prefer to set up resources manually:
-
-1. Create Azure Cosmos DB account with vector indexing
-2. Create Azure OpenAI account with required model deployments
-3. Copy `.env.template` to `.env` and fill in your values
-4. Follow steps 2-6 from Quick Start
+- **Explore the code**: Check out the `src/` folder to see how it works
+- **Add more movies**: Modify `data/movies.json` and run `npm run load-data && npm run vectorize`
+- **Run tests**: Use `npm run test` to validate everything is working
+- **See detailed docs**: Check `dev.md` for comprehensive documentation
 
 ## Cleanup
 
-To remove all Azure resources:
+When you're done exploring:
 
 ```bash
 azd down
 ```
 
-## Learning Notes
+This removes all Azure resources to avoid ongoing costs.
 
-This is a "Hello World" application focused on:
-- Simple, readable code without error handling
-- Basic TypeScript ESM patterns
-- Azure Cosmos DB vector search capabilities
-- Azure OpenAI integration for embeddings and chat
+---
 
-For production use, add proper error handling, input validation, logging, and security measures.
+**Need help?** Check the detailed documentation in `dev.md` or run `npm run test` to validate your setup.

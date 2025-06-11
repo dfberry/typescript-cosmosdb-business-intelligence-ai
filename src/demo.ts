@@ -1,26 +1,18 @@
-#!/usr/bin/env node
-
 // Demo script to show Movie AI functionality
 import { CosmosClient } from '@azure/cosmos';
 import { OpenAI } from 'openai';
+import { config } from './config.js';
+import { Movie } from './types.js';
 
-// Direct config for demo
-const config = {
-  cosmosDb: {
-    endpoint: process.env.COSMOS_DB_ENDPOINT || 'https://cosmos-diberry.documents.azure.com:443/',
-    key: process.env.COSMOS_DB_KEY || 'hlcRcsVkNLFTzolZ68ftRAbIO4cznsHeVbw6ha8NvQ1l6AAdNh9nm63encvO5zW7oQBs7e85C256ACDbCwtOPw==',
-    databaseId: 'MovieDB',
-    containerId: 'Movies'
-  },
-  openai: {
-    endpoint: process.env.OPENAI_ENDPOINT || 'https://openai-diberry.openai.azure.com/',
-    key: process.env.OPENAI_KEY || '6271a2067e794e9482948da42641a706',
-    gptModel: 'gpt-4o',
-    embeddingModel: 'text-embedding-ada-002'
-  }
-};
+interface MovieWithSimilarity {
+  title: string;
+  year: number;
+  genre: string;
+  description: string;
+  similarity: number;
+}
 
-async function demoMovieAI() {
+async function demoMovieAI(): Promise<void> {
   console.log('🎬 Movie AI Demo\n');
   
   try {
@@ -57,12 +49,12 @@ async function demoMovieAI() {
     
     // Get movies with embeddings
     console.log('Searching movies...');
-    const { resources: movies } = await container.items.query('SELECT * FROM c WHERE IS_DEFINED(c.embedding)').fetchAll();
+    const { resources: movies } = await container.items.query<Movie>('SELECT * FROM c WHERE IS_DEFINED(c.embedding)').fetchAll();
     console.log(`Found ${movies.length} movies with embeddings\n`);
     
     // Calculate similarities
-    const moviesWithSimilarity = movies.map(movie => {
-      const similarity = cosineSimilarity(queryVector, movie.embedding);
+    const moviesWithSimilarity: MovieWithSimilarity[] = movies.map(movie => {
+      const similarity = cosineSimilarity(queryVector, movie.embedding!);
       return {
         title: movie.title,
         year: movie.year,
@@ -118,12 +110,12 @@ async function demoMovieAI() {
     console.log(completion.choices[0].message.content);
     
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    console.error('❌ Error:', error instanceof Error ? error.message : 'Unknown error');
   }
 }
 
 // Helper function for cosine similarity
-function cosineSimilarity(vec1, vec2) {
+function cosineSimilarity(vec1: number[], vec2: number[]): number {
   if (vec1.length !== vec2.length) return 0;
   
   let dotProduct = 0;
@@ -139,4 +131,9 @@ function cosineSimilarity(vec1, vec2) {
   return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
 }
 
-demoMovieAI();
+// Run the demo if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  demoMovieAI().catch(console.error);
+}
+
+export { demoMovieAI };

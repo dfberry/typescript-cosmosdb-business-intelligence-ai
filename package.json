@@ -10,6 +10,9 @@
     "dev": "tsc && node dist/index.js",
     "load-data": "node dist/load-data.js",
     "vectorize": "node dist/vectorize.js",
+    "demo": "node dist/demo.js",
+    "test": "node dist/test-app.js",
+    "test-config": "node dist/test-config.js",
     "verify": "./verify-setup.sh",
     "clean": "rm -rf dist",
     "setup": "npm install && npm run build"
