@@ -137,5 +137,11 @@ resource embeddingDeployment 'Microsoft.CognitiveServices/accounts/deployments@2
 
 output COSMOS_DB_ENDPOINT string = cosmosAccount.properties.documentEndpoint
 output COSMOS_DB_ACCOUNT_NAME string = cosmosAccount.name
+output COSMOS_DB_DATABASE_NAME string = cosmosDatabase.name
+output COSMOS_DB_CONTAINER_NAME string = cosmosContainer.name
 output OPENAI_ENDPOINT string = openaiAccount.properties.endpoint
 output OPENAI_ACCOUNT_NAME string = openaiAccount.name
+output OPENAI_GPT_DEPLOYMENT_NAME string = gptDeployment.name
+output OPENAI_EMBEDDING_DEPLOYMENT_NAME string = embeddingDeployment.name
+output OPENAI_GPT_MODEL_NAME string = gptDeployment.properties.model.name
+output OPENAI_EMBEDDING_MODEL_NAME string = embeddingDeployment.properties.model.name

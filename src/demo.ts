@@ -25,14 +25,14 @@ async function demoMovieAI(): Promise<void> {
     const database = cosmosClient.database(config.cosmosDb.databaseId);
     const container = database.container(config.cosmosDb.containerId);
     
-    const openai = new OpenAI({
-      apiKey: config.openai.key,
-      baseURL: `${config.openai.endpoint}/openai/deployments/${config.openai.embeddingModel}`,
-      defaultQuery: { 'api-version': '2024-02-01' },
-      defaultHeaders: {
-        'api-key': config.openai.key,
-      },
-    });
+  const openai = new OpenAI({
+    apiKey: config.openai.key,
+    baseURL: config.openai.endpoint,
+    defaultQuery: { 'api-version': '2024-02-01' },
+    defaultHeaders: {
+      'api-key': config.openai.key,
+    },
+  });
     
     // Test question
     const question = "What are some good science fiction movies with space adventures?";

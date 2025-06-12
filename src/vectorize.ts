@@ -19,7 +19,7 @@ async function vectorizeData() {
     // Initialize OpenAI client
     const openai = new OpenAI({
       apiKey: config.openai.key,
-      baseURL: `${config.openai.endpoint}/openai/deployments/${config.openai.embeddingModel}`,
+      baseURL: config.openai.endpoint,
       defaultQuery: { 'api-version': '2024-02-01' },
       defaultHeaders: {
         'api-key': config.openai.key,
