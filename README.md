@@ -1,83 +1,121 @@
-# Movie AI - Ask Questions About Movies with AI
+# TypeScript Cosmos DB Business Intelligence AI
 
-A TypeScript CLI that lets you ask natural language questions about movies using Azure Cosmos DB vector search and Azure OpenAI.
+🎓 **A Teaching Repository for Building AI-Powered Movie Search with Azure**
 
-## Quick Start
+Learn how to build a complete TypeScript application that combines Azure Cosmos DB with OpenAI for intelligent movie search and recommendations.
 
-### 1. Deploy to Azure
+## 🚀 Quick Start
+
+1. **Prerequisites**: Azure subscription, Node.js 18+, TypeScript
+2. **Setup**: `npm install && npm run setup`
+3. **Deploy**: `npm run deploy`
+4. **Run**: `npm start`
+
+## 📚 Learning Path
+
+This repository is organized for progressive learning:
+
+### 📖 Documentation
+- [`docs/README.md`](docs/README.md) - Detailed project overview
+- [`docs/getting-started.md`](docs/getting-started.md) - Step-by-step setup guide  
+- [`docs/architecture.md`](docs/architecture.md) - System design and patterns
+- [`docs/lessons-learned.md`](docs/lessons-learned.md) - Critical implementation insights
+- [`docs/troubleshooting.md`](docs/troubleshooting.md) - Common issues and solutions
+
+### 🎓 Tutorials
+- [`tutorials/01-setup/`](tutorials/01-setup/) - Environment and Azure resource setup
+- [`tutorials/02-cosmos-db/`](tutorials/02-cosmos-db/) - Database operations and vector indexing
+- [`tutorials/03-openai-integration/`](tutorials/03-openai-integration/) - AI/ML integration patterns
+- [`tutorials/04-vector-search/`](tutorials/04-vector-search/) - Semantic search implementation
+- [`tutorials/05-testing/`](tutorials/05-testing/) - Comprehensive testing strategies
+
+### 📋 Examples
+- [`examples/basic-queries/`](examples/basic-queries/) - Simple Cosmos DB queries
+- [`examples/vector-search/`](examples/vector-search/) - Vector similarity search
+- [`examples/ai-responses/`](examples/ai-responses/) - OpenAI integration patterns
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    A[CLI Application] --> B[Movie AI Core]
+    B --> C[Cosmos DB Client]
+    B --> D[OpenAI Client]
+    C --> E[Vector Search]
+    D --> F[Embeddings]
+    D --> G[Chat Completions]
+```
+
+## 🧪 Testing
+
+- **Unit Tests**: `npm test`
+- **Integration Tests**: `npm run test:integration`
+- **E2E Tests**: `npm run test:e2e`
+- **Coverage**: `npm run coverage`
+
+## 🛠️ Key Technologies
+
+- **TypeScript ESM** - Modern JavaScript with strong typing
+- **Azure Cosmos DB** - NoSQL database with vector search
+- **Azure OpenAI** - GPT-4o and text-embedding-ada-002
+- **Vitest** - Fast and modern testing framework
+- **Azure Developer CLI** - Infrastructure as code
+
+## 📁 Project Structure
+
+```
+├── 📚 docs/              # All documentation
+├── 🎓 tutorials/         # Step-by-step learning materials  
+├── 📋 examples/          # Code examples for each feature
+├── 📁 src/               # Source code (well-organized)
+├── 🧪 tests/             # Comprehensive test suite
+├── 🛠️ tools/             # Scripts and infrastructure
+└── 📊 data/              # Sample data and schemas
+```
+
+## 🔧 Development Commands
 
 ```bash
-azd up
+# Setup and deployment
+npm run setup              # Initial environment setup
+npm run deploy             # Deploy Azure resources
+npm run validate           # Validate configuration
+
+# Development
+npm run dev                # Start development mode
+npm run build              # Build for production
+npm run lint               # Code linting
+
+# Testing
+npm test                   # Run all tests
+npm run test:unit          # Unit tests only
+npm run test:integration   # Integration tests only
+npm run coverage           # Generate coverage report
 ```
 
-This command will:
-- Create Azure Cosmos DB with vector search capabilities
-- Deploy Azure OpenAI with GPT-4o and embedding models
-- Load sample movie data and generate embeddings
-- Set up everything you need automatically
+## 🎯 Learning Objectives
 
-### 2. Ask Questions About Movies
+After completing this tutorial, you'll understand:
 
-```bash
-npm start
-```
+- ✅ Modern TypeScript ESM patterns and async/await best practices
+- ✅ Azure Cosmos DB vector search and indexing strategies
+- ✅ OpenAI API integration with proper error handling
+- ✅ Semantic search implementation with fallback mechanisms
+- ✅ Comprehensive testing strategies for Azure applications
+- ✅ Infrastructure as code with Azure Developer CLI
 
-Then try asking questions like:
-- "What are some good sci-fi movies with space adventures?"
-- "Show me action movies from the 1990s"
-- "Which movies have Morgan Freeman?"
-- "What are the best crime movies?"
-- "Tell me about movies with great reviews"
+## 🚨 Critical Configuration Notes
 
-## That's It! 🎬
+⚠️ **Common Pitfall**: Azure OpenAI baseURL construction
+- ❌ Wrong: `https://account.openai.azure.com/`
+- ✅ Correct: `https://account.openai.azure.com/openai/deployments/model-name`
 
-The application includes 10 classic movies and uses AI to understand your questions and provide intelligent recommendations based on semantic similarity.
+📖 See [`docs/lessons-learned.md`](docs/lessons-learned.md) for comprehensive troubleshooting guidance.
 
-## Example Session
+## 📝 License
 
-```
-🎬 Welcome to Movie AI! Ask me anything about movies.
-Type "exit" to quit.
-
-Ask me about movies: What are some good space adventure movies?
-
-Thinking...
-
-🤖 Based on your interest in space adventures, here are some excellent options:
-
-1. **Star Wars: Episode IV** (1977) - The classic space opera that started it all. Luke Skywalker joins forces with a Jedi Knight, rebels, and droids to save the galaxy.
-
-2. **The Matrix** (1999) - While not traditional space travel, this sci-fi masterpiece explores reality and features incredible action sequences with philosophical depth.
-
-3. **Inception** (2010) - A mind-bending adventure through dream worlds with stunning visuals and complex storytelling.
-
-These films offer thrilling adventures with memorable characters and groundbreaking special effects!
-```
-
-## What's Under the Hood
-
-- **Azure Cosmos DB**: Stores movie data with vector embeddings for semantic search
-- **Azure OpenAI**: Powers the AI responses and understands your questions
-- **Vector Search**: Finds movies similar to your question using AI embeddings
-- **TypeScript**: Modern, type-safe code you can explore and modify
-
-## Next Steps
-
-- **Explore the code**: Check out the `src/` folder to see how it works
-- **Add more movies**: Modify `data/movies.json` and run `npm run load-data && npm run vectorize`
-- **Run tests**: Use `npm run test` to validate everything is working
-- **See detailed docs**: Check `dev.md` for comprehensive documentation
-
-## Cleanup
-
-When you're done exploring:
-
-```bash
-azd down
-```
-
-This removes all Azure resources to avoid ongoing costs.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-**Need help?** Check the detailed documentation in `dev.md` or run `npm run test` to validate your setup.
+💡 **Tip**: Start with [`docs/getting-started.md`](docs/getting-started.md) for a guided learning experience!

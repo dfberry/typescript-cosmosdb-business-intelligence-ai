@@ -1,47 +1,71 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { CosmosClient, type Container } from '@azure/cosmos';
+import { CosmosClient, Database, type Container } from '@azure/cosmos';
+import { createClients } from '../../src/utils/clients.js';
 import { OpenAI } from 'openai';
-import { config } from '../../src/config.js';
-import type { Movie } from '../../src/types.js';
+import { config } from '../../src/utils/config.js';
+import type { Movie } from '../../src/utils/types.js';
+
+/**
+ * Required Environment Variables for Integration Tests:
+ * 
+ * Cosmos DB:
+ * - COSMOS_DB_ENDPOINT: Azure Cosmos DB endpoint URL
+ * - COSMOS_DB_KEY: Azure Cosmos DB primary/secondary key
+ * - COSMOS_DB_DATABASE_NAME: Database name (optional, defaults to 'MovieDB')
+ * - COSMOS_DB_CONTAINER_NAME: Container name (optional, defaults to 'Movies')
+ * 
+ * OpenAI LLM Configuration:
+ * - OPENAI_LLM_ENDPOINT: Azure OpenAI LLM endpoint URL
+ * - OPENAI_LLM_KEY: Azure OpenAI LLM API key
+ * - OPENAI_LLM_API_VERSION: LLM API version (optional, defaults to '2024-04-01-preview')
+ * - OPENAI_LLM_DEPLOYMENT_NAME: LLM model deployment name
+ * 
+ * OpenAI Embedding Configuration:
+ * - OPENAI_EMBEDDING_ENDPOINT: Azure OpenAI embedding endpoint URL
+ * - OPENAI_EMBEDDING_KEY: Azure OpenAI embedding API key
+ * - OPENAI_EMBEDDING_API_VERSION: Embedding API version (optional, defaults to '2023-05-15')
+ * - OPENAI_EMBEDDING_DEPLOYMENT_NAME: Embedding model deployment name
+ */
 
 // Check if integration test environment is available
 const hasCredentials = !!(
   process.env.COSMOS_DB_ENDPOINT && 
   process.env.COSMOS_DB_KEY &&
-  process.env.OPENAI_ENDPOINT && 
-  process.env.OPENAI_KEY
+  process.env.OPENAI_LLM_ENDPOINT && 
+  process.env.OPENAI_LLM_KEY &&
+  process.env.OPENAI_LLM_API_VERSION && 
+  process.env.OPENAI_LLM_DEPLOYMENT_NAME && 
+  process.env.OPENAI_EMBEDDING_ENDPOINT && 
+  process.env.OPENAI_EMBEDDING_KEY &&
+  process.env.OPENAI_EMBEDDING_API_VERSION &&
+  process.env.OPENAI_EMBEDDING_DEPLOYMENT_NAME
 );
 
 // Skip all integration tests if credentials are not available
 if (!hasCredentials) {
   console.log('⚠️  Integration tests skipped - Azure credentials not available');
-  console.log('   Set COSMOS_DB_ENDPOINT, COSMOS_DB_KEY, OPENAI_ENDPOINT, and OPENAI_KEY to run integration tests');
+  console.log('   Set env variables to run integration tests');
 }
 
 describe('Azure Services Integration', { skip: !hasCredentials }, () => {
-  let cosmosClient: CosmosClient;
-  let openai: OpenAI;
+  let llm: OpenAI;
+  let embedding: OpenAI;
   let container: Container;
+  let database: Database;
+  let cosmosClient: CosmosClient;
+  const dbName = process.env.COSMOS_DB_DATABASE_NAME || 'MovieDB';
+  const containerName = process.env.COSMOS_DB_CONTAINER_NAME || 'Movies';
 
   beforeAll(async () => {
     if (!hasCredentials) return;
 
-    cosmosClient = new CosmosClient({
-      endpoint: config.cosmosDb.endpoint,
-      key: config.cosmosDb.key
-    });
-
-    openai = new OpenAI({
-      apiKey: config.openai.key,
-      baseURL: config.openai.endpoint,
-      defaultQuery: { 'api-version': '2024-02-01' },
-      defaultHeaders: {
-        'api-key': config.openai.key,
-      },
-    });
-
-    const database = cosmosClient.database(config.cosmosDb.databaseId);
-    container = database.container(config.cosmosDb.containerId);
+    // Initialize clients
+    const clients = await createClients();
+    cosmosClient = clients.cosmosClient;
+    llm = clients.llm;
+    embedding = clients.embedding;
+    database = clients.database;
+    container = clients.container;
   });
 
   afterAll(async () => {
@@ -49,12 +73,38 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
   });
 
   describe('Cosmos DB Integration', () => {
-    it('should connect to Cosmos DB successfully', async () => {
-      const { resources: movies } = await container.items
-        .query('SELECT TOP 1 c.id FROM c')
-        .fetchAll();
-      
-      expect(Array.isArray(movies)).toBe(true);
+    it('should connect to Cosmos DB and create database/container if not exists', async () => {
+      try {
+        // Test connectivity by creating database if it doesn't exist
+        const { database: dbResponse } = await cosmosClient.databases.createIfNotExists({
+          id: config.cosmosDb.databaseId
+        });
+        
+        expect(dbResponse.id).toBe(config.cosmosDb.databaseId);
+        console.log(`✓ Database '${config.cosmosDb.databaseId}' exists or was created successfully`);
+
+        // Test container creation if it doesn't exist
+        const { container: containerResponse } = await dbResponse.containers.createIfNotExists({
+          id: config.cosmosDb.containerId,
+          partitionKey: { paths: ['/id'] }
+        });
+
+        expect(containerResponse.id).toBe(config.cosmosDb.containerId);
+        console.log(`✓ Container '${config.cosmosDb.containerId}' exists or was created successfully`);
+
+        // Update our references to use the actual created/found resources
+        database = dbResponse;
+        container = containerResponse;
+
+      } catch (error: any) {
+        if (error.code === 401 || error.statusCode === 401) {
+          throw new Error('Authentication failed. Please check your Cosmos DB credentials.');
+        } else if (error.code === 403 || error.statusCode === 403) {
+          throw new Error('Access denied. Please check your Cosmos DB permissions.');
+        } else {
+          throw new Error(`Failed to connect to Cosmos DB: ${error.message}`);
+        }
+      }
     });
 
     it('should query movies with embeddings', async () => {
@@ -93,14 +143,31 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
         console.log('Vector search not available in test environment');
       }
     });
+
+    it('should verify container accessibility (if exists)', async () => {
+      try {
+        const containerResponse = await container.read();
+        expect(containerResponse.statusCode).toBe(200);
+        expect(containerResponse.resource?.id).toBe(config.cosmosDb.containerId);
+        console.log(`✓ Container '${config.cosmosDb.containerId}' exists and is accessible`);
+      } catch (error: any) {
+        if (error.code === 404 || error.statusCode === 404) {
+          console.log(`⚠️  Container '${config.cosmosDb.containerId}' not found - this is expected if not yet created`);
+          // This is acceptable - container might not exist yet
+          expect(error.code || error.statusCode).toBe(404);
+        } else {
+          throw new Error(`Failed to check container: ${error.message}`);
+        }
+      }
+    });
   });
 
   describe('OpenAI Integration', () => {
     it('should create embeddings successfully', async () => {
       try {
-        const response = await openai.embeddings.create({
+        const response = await embedding.embeddings.create({
           input: 'test movie description',
-          model: config.openai.embeddingModel
+          model: config.openai.embedding.deploymentName
         });
 
         expect(response.data).toBeDefined();
@@ -121,8 +188,8 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
 
     it('should generate chat completions successfully', async () => {
       try {
-        const response = await openai.chat.completions.create({
-          model: config.openai.gptModel,
+        const response = await llm.chat.completions.create({
+          model: config.openai.llm.deploymentName,
           messages: [
             {
               role: 'system',
@@ -153,9 +220,9 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
 
     it('should handle rate limiting gracefully', async () => {
       const promises = Array(5).fill(0).map(() => 
-        openai.embeddings.create({
+        embedding.embeddings.create({
           input: 'rate limit test',
-          model: config.openai.embeddingModel
+          model: config.openai.embedding.deploymentName
         }).catch(error => error)
       );
 
@@ -193,9 +260,9 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
       try {
         // Create embedding for movie description
         const movieText = `${movie.title} ${movie.description} ${movie.genre}`;
-        const embeddingResponse = await openai.embeddings.create({
+        const embeddingResponse = await embedding.embeddings.create({
           input: movieText,
-          model: config.openai.embeddingModel
+          model: config.openai.embedding.deploymentName
         });
 
         expect(embeddingResponse.data[0].embedding).toBeDefined();
@@ -216,9 +283,9 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
       
       try {
         // Create question embedding
-        const questionEmbedding = await openai.embeddings.create({
+        const questionEmbedding = await embedding.embeddings.create({
           input: question,
-          model: config.openai.embeddingModel
+          model: config.openai.embedding.deploymentName
         });
 
         expect(questionEmbedding.data[0].embedding).toBeDefined();
@@ -234,8 +301,8 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
           ).join('\n');
 
           // Generate answer
-          const completion = await openai.chat.completions.create({
-            model: config.openai.gptModel,
+          const completion = await llm.chat.completions.create({
+            model: config.openai.llm.deploymentName,
             messages: [
               {
                 role: 'system',
@@ -268,9 +335,9 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
       const startTime = Date.now();
       
       try {
-        await openai.embeddings.create({
+        await embedding.embeddings.create({
           input: 'performance test input',
-          model: config.openai.embeddingModel
+          model: config.openai.embedding.deploymentName
         });
         
         const endTime = Date.now();
@@ -293,8 +360,8 @@ describe('Azure Services Integration', { skip: !hasCredentials }, () => {
       const startTime = Date.now();
       
       try {
-        await openai.chat.completions.create({
-          model: config.openai.gptModel,
+        await llm.chat.completions.create({
+          model: config.openai.llm.deploymentName,
           messages: [
             { role: 'user', content: 'Quick test question' }
           ]

@@ -1,8 +1,8 @@
 // Demo script to show Movie AI functionality
-import { CosmosClient } from '@azure/cosmos';
-import { OpenAI } from 'openai';
-import { config } from './config.js';
-import { Movie } from './types.js';
+import { config } from './utils/config.js';
+import { Movie } from './utils/types.js';
+import { createClients } from './utils/clients.js';
+import { cosineSimilarity } from './utils/similarity.js';
 
 interface MovieWithSimilarity {
   title: string;
@@ -16,23 +16,7 @@ async function demoMovieAI(): Promise<void> {
   console.log('🎬 Movie AI Demo\n');
   
   try {
-    // Initialize clients
-    const cosmosClient = new CosmosClient({
-      endpoint: config.cosmosDb.endpoint,
-      key: config.cosmosDb.key
-    });
-    
-    const database = cosmosClient.database(config.cosmosDb.databaseId);
-    const container = database.container(config.cosmosDb.containerId);
-    
-  const openai = new OpenAI({
-    apiKey: config.openai.key,
-    baseURL: config.openai.endpoint,
-    defaultQuery: { 'api-version': '2024-02-01' },
-    defaultHeaders: {
-      'api-key': config.openai.key,
-    },
-  });
+    const { container, embedding, llm } = await createClients();
     
     // Test question
     const question = "What are some good science fiction movies with space adventures?";
@@ -40,9 +24,9 @@ async function demoMovieAI(): Promise<void> {
     
     // Get question embedding
     console.log('Generating question embedding...');
-    const embeddingResponse = await openai.embeddings.create({
+    const embeddingResponse = await embedding.embeddings.create({
       input: question,
-      model: config.openai.embeddingModel
+      model: config.openai.embedding.deploymentName
     });
     const queryVector = embeddingResponse.data[0].embedding;
     console.log(`✅ Generated embedding (${queryVector.length} dimensions)\n`);
@@ -83,17 +67,8 @@ async function demoMovieAI(): Promise<void> {
       `${movie.title} (${movie.year}) - ${movie.genre}: ${movie.description}`
     ).join('\n\n');
     
-    const gptOpenai = new OpenAI({
-      apiKey: config.openai.key,
-      baseURL: `${config.openai.endpoint}/openai/deployments/${config.openai.gptModel}`,
-      defaultQuery: { 'api-version': '2024-02-01' },
-      defaultHeaders: {
-        'api-key': config.openai.key,
-      },
-    });
-    
-    const completion = await gptOpenai.chat.completions.create({
-      model: config.openai.gptModel,
+    const completion = await llm.chat.completions.create({
+      model: config.openai.llm.deploymentName,
       messages: [
         {
           role: 'system',
@@ -114,22 +89,7 @@ async function demoMovieAI(): Promise<void> {
   }
 }
 
-// Helper function for cosine similarity
-function cosineSimilarity(vec1: number[], vec2: number[]): number {
-  if (vec1.length !== vec2.length) return 0;
-  
-  let dotProduct = 0;
-  let norm1 = 0;
-  let norm2 = 0;
-  
-  for (let i = 0; i < vec1.length; i++) {
-    dotProduct += vec1[i] * vec2[i];
-    norm1 += vec1[i] * vec1[i];
-    norm2 += vec2[i] * vec2[i];
-  }
-  
-  return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
-}
+
 
 // Run the demo if this file is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {

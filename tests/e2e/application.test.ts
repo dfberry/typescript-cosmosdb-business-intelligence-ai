@@ -1,10 +1,21 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { spawn } from 'child_process';
 import { readFile } from 'fs/promises';
-import { config } from '../../src/config.js';
+import { config } from '../../src/utils/config.js';
 
 // Skip E2E tests if credentials are not available
-const skipIfNoCredentials = process.env.COSMOS_DB_ENDPOINT && process.env.OPENAI_KEY ? false : true;
+const skipIfNoCredentials = !!(
+  process.env.COSMOS_DB_ENDPOINT &&
+  process.env.COSMOS_DB_KEY &&
+  process.env.OPENAI_LLM_ENDPOINT &&
+  process.env.OPENAI_LLM_KEY &&
+  process.env.OPENAI_LLM_API_VERSION &&
+  process.env.OPENAI_LLM_DEPLOYMENT_NAME &&
+  process.env.OPENAI_EMBEDDING_ENDPOINT &&
+  process.env.OPENAI_EMBEDDING_KEY &&
+  process.env.OPENAI_EMBEDDING_API_VERSION &&
+  process.env.OPENAI_EMBEDDING_DEPLOYMENT_NAME
+) ? false : true;
 
 describe('End-to-End Application Tests', { skip: skipIfNoCredentials }, () => {
   beforeAll(async () => {
@@ -26,18 +37,31 @@ describe('End-to-End Application Tests', { skip: skipIfNoCredentials }, () => {
 
   describe('Configuration Validation', () => {
     it('should have all required environment variables', () => {
+      // Cosmos DB environment variables
       expect(config.cosmosDb.endpoint).toBeTruthy();
       expect(config.cosmosDb.key).toBeTruthy();
-      expect(config.openai.endpoint).toBeTruthy();
-      expect(config.openai.key).toBeTruthy();
+      expect(config.cosmosDb.databaseId).toBeTruthy();
+      expect(config.cosmosDb.containerId).toBeTruthy();
+      
+      // OpenAI LLM configuration
+      expect(config.openai.llm.endpoint).toBeTruthy();
+      expect(config.openai.llm.key).toBeTruthy();
+      expect(config.openai.llm.deploymentName).toBeTruthy();
+      expect(config.openai.llm.apiVersion).toBeTruthy();
+      
+      // OpenAI Embedding configuration
+      expect(config.openai.embedding.endpoint).toBeTruthy();
+      expect(config.openai.embedding.key).toBeTruthy();
+      expect(config.openai.embedding.deploymentName).toBeTruthy();
+      expect(config.openai.embedding.apiVersion).toBeTruthy();
     });
 
     it('should have correct model configurations', () => {
       // Models should be defined (either from environment or defaults)
-      expect(config.openai.gptModel).toBeDefined();
-      expect(config.openai.embeddingModel).toBeDefined();
-      expect(typeof config.openai.gptModel).toBe('string');
-      expect(typeof config.openai.embeddingModel).toBe('string');
+      expect(config.openai.llm.deploymentName).toBeDefined();
+      expect(config.openai.embedding.deploymentName).toBeDefined();
+      expect(typeof config.openai.llm.deploymentName).toBe('string');;
+      expect(typeof config.openai.embedding.deploymentName).toBe('string');;
       
       // Database configuration should be defined
       expect(config.cosmosDb.databaseId).toBeDefined();
@@ -100,6 +124,7 @@ describe('End-to-End Application Tests', { skip: skipIfNoCredentials }, () => {
       
       // Create instance to test initialization
       const movieAI = new MovieAI();
+      await movieAI.init();
       expect(movieAI).toBeDefined();
     });
   });
@@ -108,8 +133,9 @@ describe('End-to-End Application Tests', { skip: skipIfNoCredentials }, () => {
     it('should handle movie search queries', async () => {
       const { MovieAI } = await import('../../src/index.js');
       const movieAI = new MovieAI();
-      
+
       try {
+        await movieAI.init();
         const result = await movieAI.searchMovies('action movies');
         expect(Array.isArray(result)).toBe(true);
       } catch (error) {
@@ -121,10 +147,12 @@ describe('End-to-End Application Tests', { skip: skipIfNoCredentials }, () => {
     it('should generate answers for questions', async () => {
       const { MovieAI } = await import('../../src/index.js');
       const movieAI = new MovieAI();
-      
+
       try {
+        await movieAI.init();
         const answer = await movieAI.answerQuestion('What are some good sci-fi movies?');
         expect(typeof answer).toBe('string');
+        console.log(answer);
         expect(answer.length).toBeGreaterThan(0);
       } catch (error) {
         // If answer generation fails, it should throw a meaningful error
@@ -193,6 +221,7 @@ describe('End-to-End Application Tests', { skip: skipIfNoCredentials }, () => {
       const movieAI = new MovieAI();
       
       try {
+        await movieAI.init();
         const result = await movieAI.searchMovies('');
         expect(Array.isArray(result)).toBe(true);
       } catch (error) {
@@ -208,6 +237,7 @@ describe('End-to-End Application Tests', { skip: skipIfNoCredentials }, () => {
       const longQuery = 'very '.repeat(1000) + 'long query';
       
       try {
+        await movieAI.init();
         await movieAI.searchMovies(longQuery);
       } catch (error) {
         expect(error).toBeInstanceOf(Error);

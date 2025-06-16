@@ -13,8 +13,28 @@ import {
 vi.mock('@azure/cosmos', () => ({
   CosmosClient: vi.fn().mockImplementation(() => ({
     database: vi.fn(() => ({
-      container: vi.fn(() => createMockContainer().container)
-    }))
+      container: vi.fn(() => ({
+        items: {
+          query: vi.fn().mockReturnValue({
+            fetchAll: vi.fn().mockResolvedValue({ resources: [] })
+          })
+        }
+      }))
+    })),
+    databases: {
+      createIfNotExists: vi.fn().mockResolvedValue({
+        database: {
+          id: 'TestDB',
+          containers: {
+            createIfNotExists: vi.fn().mockResolvedValue({
+              container: {
+                id: 'TestContainer'
+              }
+            })
+          }
+        }
+      })
+    }
   }))
 }));
 
@@ -22,7 +42,7 @@ vi.mock('openai', () => ({
   OpenAI: vi.fn().mockImplementation(() => mockOpenAI)
 }));
 
-vi.mock('../../src/config.js', () => ({
+vi.mock('../../src/utils/config.js', () => ({
   config: {
     cosmosDb: {
       endpoint: 'https://test.documents.azure.com:443/',
@@ -33,8 +53,21 @@ vi.mock('../../src/config.js', () => ({
     openai: {
       endpoint: 'https://test.openai.azure.com/',
       key: 'test-openai-key',
+      apiVersion: '2025-01-01-preview',
       gptModel: 'gpt-4o',
-      embeddingModel: 'text-embedding-ada-002'
+      embeddingModel: 'text-embedding-ada-002',
+      llm: {
+        endpoint: 'https://test.openai.azure.com/',
+        key: 'test-openai-llm-key',
+        deploymentName: 'gpt-4o',
+        apiVersion: '2024-04-01-preview'
+      },
+      embedding: {
+        endpoint: 'https://test.openai.azure.com/',
+        key: 'test-openai-embedding-key',
+        deploymentName: 'text-embedding-ada-002',
+        apiVersion: '2023-05-15'
+      }
     }
   }
 }));
@@ -46,14 +79,15 @@ describe('MovieAI Class', () => {
   let movieAI: any;
   let mockContainer: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     resetMocks();
     const { container } = createMockContainer();
     mockContainer = container;
     movieAI = new MovieAI();
     // Replace the internal container with our mock
     (movieAI as any).container = mockContainer;
-    (movieAI as any).openai = mockOpenAI;
+    (movieAI as any).llm = mockOpenAI;
+    (movieAI as any).embedding = mockOpenAI;
   });
 
   afterEach(() => {
@@ -63,9 +97,9 @@ describe('MovieAI Class', () => {
   describe('Constructor', () => {
     it('should initialize Cosmos DB and OpenAI clients', () => {
       expect(movieAI).toBeDefined();
-      expect(movieAI.cosmosClient).toBeDefined();
-      expect(movieAI.openai).toBeDefined();
       expect(movieAI.container).toBeDefined();
+      expect(movieAI.llm).toBeDefined();
+      expect(movieAI.embedding).toBeDefined();
     });
   });
 
@@ -213,6 +247,46 @@ describe('MovieAI Class', () => {
       mockOpenAI.embeddings.create.mockResolvedValue({ data: [] });
 
       await expect(movieAI.searchMovies('test')).rejects.toThrow();
+    });
+  });
+
+  describe('Initialization', () => {
+    it('should require init() to be called before using methods', async () => {
+      const uninitializedMovieAI = new MovieAI();
+      
+      await expect(uninitializedMovieAI.searchMovies('test')).rejects.toThrow('MovieAI not initialized. Call init() first.');
+      await expect(uninitializedMovieAI.answerQuestion('test')).rejects.toThrow('MovieAI not initialized. Call init() first.');
+    });
+
+    it('should initialize properly when init() is called', async () => {
+      const movieAI = new MovieAI();
+      await movieAI.init();
+      
+      // After init, the internal properties should be defined
+      expect((movieAI as any).container).toBeDefined();
+      expect((movieAI as any).llm).toBeDefined();
+      expect((movieAI as any).embedding).toBeDefined();
+    });
+
+    it('should work correctly after initialization', async () => {
+      const movieAI = new MovieAI();
+      await movieAI.init();
+      
+      // Mock the container for this test
+      const { container } = createMockContainer();
+      (movieAI as any).container = container;
+      (movieAI as any).llm = mockOpenAI;
+      (movieAI as any).embedding = mockOpenAI;
+      
+      // Setup mocks
+      mockOpenAI.embeddings.create.mockResolvedValue(mockEmbeddingResponse);
+      container.items.query.mockReturnValue({
+        fetchAll: vi.fn().mockResolvedValue({ resources: mockMovies })
+      });
+      
+      // Should not throw an error
+      const result = await movieAI.searchMovies('test query');
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 });

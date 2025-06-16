@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import type { Movie, Review } from '../src/types.js';
+import type { Movie, Review } from '../src/utils/types.js';
 
 /**
  * Create a test movie with optional properties
@@ -197,8 +197,14 @@ export function isTestEnvironmentReady(): boolean {
   return !!(
     process.env.COSMOS_DB_ENDPOINT &&
     process.env.COSMOS_DB_KEY &&
-    process.env.OPENAI_ENDPOINT &&
-    process.env.OPENAI_KEY
+    process.env.OPENAI_LLM_ENDPOINT &&
+    process.env.OPENAI_LLM_KEY &&
+    process.env.OPENAI_LLM_API_VERSION &&
+    process.env.OPENAI_LLM_DEPLOYMENT_NAME &&
+    process.env.OPENAI_EMBEDDING_ENDPOINT &&
+    process.env.OPENAI_EMBEDDING_KEY &&
+    process.env.OPENAI_EMBEDDING_API_VERSION &&
+    process.env.OPENAI_EMBEDDING_DEPLOYMENT_NAME
   );
 }
 
