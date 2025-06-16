@@ -80,4 +80,25 @@ This removes all Azure resources to avoid ongoing costs.
 
 ---
 
-**Need help?** Check the detailed documentation in `dev.md` or run `npm run test` to validate your setup.
+**Need help?** Check the detailed documentation below or run `npm run test` to validate your setup.
+
+## Documentation
+
+### Core Guides
+- [Getting Started](./getting-started.md) - Complete setup instructions
+- [Vector Storage with Cosmos DB](./vector-storage-cosmos-db.md) - Deep dive into vector embeddings and search strategies
+- [Adaptation Guide](./adaptation-guide.md) - Customize the repository for your own data and domain
+- [Architecture](./architecture.md) - System design and components
+- [Dev Guide](./dev.md) - Development workflow and testing
+
+### Quickstarts
+- [Basic Vector Search](./quickstart.md) - Simple embedding and search functions
+- [RAG (Retrieval-Augmented Generation)](./quickstart-rag.md) - Complete conversational AI system with grounded responses
+
+### Implementation
+- [Lessons Learned](./lessons-learned.md) - Development insights and best practices
+- [Implementation Summary](./IMPLEMENTATION_SUMMARY.md) - Technical implementation details
+
+### Testing
+- [Testing Summary](./TESTING_SUMMARY.md) - Testing approach and coverage
+- [Testing Completion](./TESTING_COMPLETION_SUMMARY.md) - Final testing results

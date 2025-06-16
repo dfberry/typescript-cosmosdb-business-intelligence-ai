@@ -120,3 +120,26 @@ Common issues and solutions:
 **Solution**: Verify embeddings were generated and vector policy is configured
 
 For more detailed troubleshooting, see [`troubleshooting.md`](troubleshooting.md).
+
+## Next Steps
+
+Now that you have the system running, explore these guides to deepen your understanding and customize for your needs:
+
+### 📖 **Core Documentation**
+- **[Vector Storage with Cosmos DB](./vector-storage-cosmos-db.md)** - Learn about different vectorization strategies, indexing, and performance optimization
+- **[Adaptation Guide](./adaptation-guide.md)** - Step-by-step instructions to customize this repository for your own data and domain
+- **[Architecture](./architecture.md)** - Understand the system design and component interactions
+
+### 🚀 **Quickstart Guides**
+- **[Basic Vector Search](./quickstart.md)** - Simple embedding and search functions for getting started
+- **[RAG Quickstart](./quickstart-rag.md)** - Build a complete conversational AI system with grounded responses using retrieval-augmented generation
+
+### 🔧 **Development**
+- **[Dev Guide](./dev.md)** - Development workflow, testing, and contribution guidelines
+- **[Lessons Learned](./lessons-learned.md)** - Implementation insights and best practices
+
+### 🎯 **Quick Actions**
+- Try different search queries to see how semantic search works
+- Modify the movie data in `data/movies.json` and re-run vectorization
+- Experiment with different vectorization strategies from the Vector Storage guide
+- Use the Adaptation Guide to implement your own domain-specific search
